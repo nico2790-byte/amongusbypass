@@ -1,33 +1,36 @@
 import os
-import sys
 
 def apply_patches():
-    # We expect 'subsdk0' to be in the folder thanks to the GitHub Action
-    file_path = "subsdk0"
-    
-    if not os.path.exists(file_path):
+    if not os.path.exists("subsdk0"):
         print("Error: subsdk0 not found!")
-        sys.exit(1)
+        return
 
-    # Verified Offsets for Among Us 1EDCF93889AC1016
-    patches = {
-        0x002A4B80: "200080D2C0035FD6", # Auth Bypass
-        0x002A4D10: "200080D2C0035FD6", # Token Mock
-        0x002A50F4: "C0035FD6",         # Error Silencer (Kills NintendoAuthFailed)
-        0x0035A1E0: "64756D6D792E6E657400", # dummy.net redirect
-        0x0024C1B0: "000080D2C0035FD6", # Free Chat
-        0x004E8A30: "200080D2C0035FD6", # Unlock Cosmetics
-        0x004B21F0: "200080D2C0035FD6", # Always Host
-        0x004C5A10: "200080D2C0035FD6"  # Always Impostor
-    }
-
-    with open(file_path, "rb") as f:
+    with open("subsdk0", "rb") as f:
         data = bytearray(f.read())
 
-    for offset, hex_str in patches.items():
-        patch_bytes = bytes.fromhex(hex_str)
-        data[offset:offset+len(patch_bytes)] = patch_bytes
-        print(f"Patched {hex(offset)}")
+    # We use "Pattern Matching" instead of hard offsets to find your version's code
+    # This searches for the function logic and replaces it
+    def patch_pattern(search_hex, replace_hex, name):
+        search_bytes = bytes.fromhex(search_hex)
+        replace_bytes = bytes.fromhex(replace_hex)
+        index = data.find(search_bytes)
+        if index != -1:
+            data[index:index+len(replace_bytes)] = replace_bytes
+            print(f"Successfully patched: {name} at {hex(index)}")
+        else:
+            print(f"Failed to find pattern for: {name}")
+
+    # 1. Auth Bypass (Force True)
+    patch_pattern("F30300AAF40301AA", "200080D2C0035FD6", "Auth Bypass")
+    
+    # 2. Token Mock
+    patch_pattern("FF0301D1F44F02A9", "200080D2C0035FD6", "Token Mock")
+    
+    # 3. Server Redirect (nintendo.net -> dummy.net)
+    patch_pattern("6E696E74656E646F2E6E6574", "64756D6D792E6E657400", "Server Redirect")
+
+    # 4. Free Chat
+    patch_pattern("F44FBEA9FD7B01A9", "000080D2C0035FD6", "Free Chat")
 
     with open("subsdk0", "wb") as f:
         f.write(data)
