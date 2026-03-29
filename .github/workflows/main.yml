@@ -17,11 +17,10 @@ jobs:
 
       - name: Organize Folders
         run: |
-          mkdir -p atmosphere/contents/0100D15012976000/exefs/
-          mv subsdk0 atmosphere/contents/0100D15012976000/exefs/
-          mv main atmosphere/contents/0100D15012976000/exefs/
-          # Copy the npdm you uploaded to the repo
-          cp main.npdm atmosphere/contents/0100D15012976000/exefs/
+          mkdir -p atmosphere/contents/0100B0C013912000/exefs/
+          mv subsdk0 atmosphere/contents/0100B0C013912000/exefs/
+          mv main atmosphere/contents/0100B0C013912000/exefs/
+          cp main.npdm atmosphere/contents/0100B0C013912000/exefs/
 
       - name: Upload Finished Patch
         uses: actions/upload-artifact@v4
