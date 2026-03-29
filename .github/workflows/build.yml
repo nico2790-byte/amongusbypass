@@ -1,0 +1,31 @@
+name: Build LayeredFS Patch
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run Patching Script
+        run: python patcher.py
+
+      - name: Prepare Atmosphere Folder
+        run: |
+          mkdir -p atmosphere/contents/0100D15012976000/exefs/
+          mv subsdk0 atmosphere/contents/0100D15012976000/exefs/
+          cp main.npdm atmosphere/contents/0100D15012976000/exefs/
+          # If you have a clean 'main' file in your repo, include it too:
+          if [ -f "main" ]; then cp main atmosphere/contents/0100D15012976000/exefs/; fi
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AmongUs-LayeredFS
+          path: atmosphere/
